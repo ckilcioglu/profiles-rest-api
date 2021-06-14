@@ -254,3 +254,6 @@ bundles/
 vendor/pkg/
 pyenv
 Vagrantfile
+
+# Editor config files
+.vscode
