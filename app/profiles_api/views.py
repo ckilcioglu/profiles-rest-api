@@ -32,7 +32,8 @@ class HelloApiView(APIView):
 
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
-            message = f'Hello {name}'
+            email = serializer.validated_data.get('email')
+            message = f'Hello {name} with {email}'
             return Response({'message': message})
         else:
             return Response(
