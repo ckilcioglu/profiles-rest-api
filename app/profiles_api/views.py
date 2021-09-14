@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
+from django.shortcuts import get_object_or_404
 
 from profiles_api import serializers
 from profiles_api import models
@@ -109,3 +110,63 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email')
+
+
+class PhoneBookViewSet(viewsets.ViewSet):
+    """Handle requests to phonebook"""
+    serializer_class = serializers.PhoneBookSerializer
+    
+    def list(self, request):
+        queryset = models.PhoneBook.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status.HTTP_201_CREATED)
+        else: 
+            return Response(
+                serializer.errors,
+                status.HTTP_400_BAD_REQUEST
+            )
+    
+    def destroy(self, request, pk=None):
+        obj = get_object_or_404(models.PhoneBook, id=pk)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, pk=None):
+        """Handle getting an object by its ID"""
+        obj = get_object_or_404(models.PhoneBook, id=pk)
+        serializer = self.serializer_class(obj)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        """Handle updating an object"""
+        obj = get_object_or_404(models.PhoneBook, id=pk)
+        serializer = self.serializer_class(obj, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(
+                serializer.errors,
+                status.HTTP_400_BAD_REQUEST
+            )
+
+    def partial_update(self, request, pk=None):
+        """Handle partial updating an object"""
+        obj = get_object_or_404(models.PhoneBook, id=pk)
+        serializer = self.serializer_class(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(
+                serializer.errors,
+                status.HTTP_400_BAD_REQUEST
+            )

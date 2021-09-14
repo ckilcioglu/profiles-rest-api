@@ -33,3 +33,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class PhoneBookSerializer(serializers.ModelSerializer):
+    """Serializes a phone book contact"""
+    
+    class Meta:
+        model = models.PhoneBook
+        fields = ['id', 'first_name', 'middle_name', 'last_name', 'phone_number']
+    
+    def validate_phone_number(self, value):
+        if value[0] == "+":
+            value = "00" + value[1:]
+        if value.isnumeric():
+            return value
+        else:
+            raise serializers.ValidationError("Wrong phone number format")

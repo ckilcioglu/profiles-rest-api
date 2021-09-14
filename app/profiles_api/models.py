@@ -54,3 +54,15 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         """Return string representation of user"""
         return self.email
+
+
+class PhoneBook(models.Model):
+    """Database model to store contacts in the phone"""
+    first_name = models.CharField(max_length=128)
+    middle_name = models.CharField(max_length=128, blank=True)
+    last_name = models.CharField(max_length=128, blank=True)
+    phone_number = models.CharField(max_length=20)
+
+    def __str__(self):
+        the_name = self.first_name + self.middle_name + self.last_name
+        return f"{the_name} ({self.phone_number}) "
