@@ -7,6 +7,8 @@ from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 
 from profiles_api import serializers
 from profiles_api import models
@@ -118,6 +120,21 @@ class UserLoginApiView(ObtainAuthToken):
     """Handles creating user authentication tokens"""
     # To enable in browsable API view
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class UserProfileFeedViewSet(viewsets.ModelViewSet):
+    """Handles creating/reading/updating profile feed items"""
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.ProfileFeedItemSerializer
+    queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (
+        permissions.UpdateOwnStatus,
+        IsAuthenticatedOrReadOnly
+        )
+
+    def perform_create(self, serializer):
+        """Sets the user profiler to the logged in user"""
+        serializer.save(user_profile=self.request.user)
 
 
 class PhoneBookViewSet(viewsets.ViewSet):
